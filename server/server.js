@@ -1,5 +1,8 @@
 const path = require('path');//to clean the path
+const http = require('http');
 const express = require('express');
+const socketIO = require('socket.io');
+
 //const bodyParser = require('body-parser');
 
 const publicPath = path.join(__dirname, '../public');
@@ -7,18 +10,22 @@ const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 
 const indexPath = publicPath + '/index.html';
-console.log(indexPath);
+
 var app = express();
+var server = http.createServer(app);
+
+var io = socketIO(server);
 
 //app.use(bodyParser.json()); //to send JSON to the Express app
 app.use(express.static(publicPath));
 
-// app.get(publicPath, (req, res) => {
-//   res.render('index', {});
-// });
-
-app.listen(port, () => {
-  console.log(`Started up at port ${port}`);
+io.on('connection', (socket) => {
+  console.log('New user connected');
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
 });
 
-module.exports = {app};
+server.listen(port, () => {
+  console.log(`Started up at port ${port}`);
+});
